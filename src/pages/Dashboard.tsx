@@ -9,6 +9,8 @@ import ApodCard from '@/components/ApodCard';
 import { AsteroidSizeBarChart } from '@/components/charts/AsteroidSizeBarChart';
 import { SolarFlareTimelineChart } from '@/components/charts/SolarFlareTimelineChart';
 import { NeoHazardPieChart } from '@/components/charts/NeoHazardPieChart';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import styles from './Dashboard.module.css';
 
 /** Returns today's date as YYYY-MM-DD */
@@ -80,7 +82,9 @@ export default function Dashboard() {
         <div className={styles.grid}>
           {/* ---- APOD Card ---- */}
           <div className={styles.spanHalf}>
-            <ApodCard />
+            <ErrorBoundary>
+              <ApodCard />
+            </ErrorBoundary>
           </div>
 
           {/* ---- Stats summary ---- */}
@@ -117,44 +121,62 @@ export default function Dashboard() {
 
           {/* ---- Asteroid Size Chart ---- */}
           <div className={styles.spanHalf}>
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <span className={styles.sectionIcon} role="img" aria-label="Asteroid">
-                  ☄️
-                </span>
-                <h2 className={styles.sectionTitle}>Asteroid Sizes</h2>
+            <ErrorBoundary>
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.sectionIcon} role="img" aria-label="Asteroid">
+                    ☄️
+                  </span>
+                  <h2 className={styles.sectionTitle}>Asteroid Sizes</h2>
+                </div>
+                {neo.isLoading ? (
+                  <LoadingSkeleton showBlock lines={2} />
+                ) : (
+                  <AsteroidSizeBarChart neoList={neo.neoList} />
+                )}
               </div>
-              <AsteroidSizeBarChart neoList={neo.neoList} />
-            </div>
+            </ErrorBoundary>
           </div>
 
           {/* ---- NEO Hazard Pie Chart ---- */}
           <div className={styles.spanHalf}>
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <span className={styles.sectionIcon} role="img" aria-label="Shield">
-                  🛡️
-                </span>
-                <h2 className={styles.sectionTitle}>Hazard Classification</h2>
+            <ErrorBoundary>
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.sectionIcon} role="img" aria-label="Shield">
+                    🛡️
+                  </span>
+                  <h2 className={styles.sectionTitle}>Hazard Classification</h2>
+                </div>
+                {neo.isLoading ? (
+                  <LoadingSkeleton showBlock lines={2} />
+                ) : (
+                  <NeoHazardPieChart
+                    hazardousCount={neo.stats.hazardousCount}
+                    nonHazardousCount={neo.stats.nonHazardousCount}
+                  />
+                )}
               </div>
-              <NeoHazardPieChart
-                hazardousCount={neo.stats.hazardousCount}
-                nonHazardousCount={neo.stats.nonHazardousCount}
-              />
-            </div>
+            </ErrorBoundary>
           </div>
 
           {/* ---- Solar Flare Timeline ---- */}
           <div className={styles.spanFull}>
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <span className={styles.sectionIcon} role="img" aria-label="Sun">
-                  ☀️
-                </span>
-                <h2 className={styles.sectionTitle}>Solar Flare Timeline</h2>
+            <ErrorBoundary>
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.sectionIcon} role="img" aria-label="Sun">
+                    ☀️
+                  </span>
+                  <h2 className={styles.sectionTitle}>Solar Flare Timeline</h2>
+                </div>
+                {flares.isLoading ? (
+                  <LoadingSkeleton showBlock lines={2} />
+                ) : (
+                  <SolarFlareTimelineChart flares={flares.data} filterClass={eventType} />
+                )}
               </div>
-              <SolarFlareTimelineChart flares={flares.data} filterClass={eventType} />
-            </div>
+            </ErrorBoundary>
           </div>
         </div>
       </main>
