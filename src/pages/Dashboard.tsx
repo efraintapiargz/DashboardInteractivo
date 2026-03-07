@@ -80,8 +80,20 @@ export default function Dashboard() {
 
   return (
     <>
+      {/* ---- Skip to content ---- */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+
+      {/* ---- Live status region ---- */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {neo.isLoading || flares.isLoading
+          ? 'Loading dashboard data…'
+          : `Loaded ${neoSummary.total} asteroids and ${neoSummary.flareCount} solar flares.`}
+      </div>
+
       {/* ---- Header ---- */}
-      <header className={styles.header}>
+      <header className={styles.header} role="banner">
         <div className={styles.logo}>
           <span className={styles.logoIcon} role="img" aria-label="Rocket">
             🚀
@@ -109,7 +121,7 @@ export default function Dashboard() {
       </nav>
 
       {/* ---- Main grid ---- */}
-      <main className={styles.main}>
+      <main id="main-content" className={styles.main}>
         <div className={styles.grid}>
           {/* ---- APOD Card ---- */}
           <div className={styles.spanHalf}>
@@ -219,7 +231,7 @@ export default function Dashboard() {
       </main>
 
       {/* ---- Footer ---- */}
-      <footer className={styles.footer}>
+      <footer className={styles.footer} role="contentinfo">
         Powered by{' '}
         <a
           className={styles.footerLink}
