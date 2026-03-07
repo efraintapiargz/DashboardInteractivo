@@ -1,0 +1,36 @@
+.selectorWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.25rem);
+}
+
+.label {
+  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #1e293b);
+  border-radius: 6px;
+  background: var(--color-surface, #111827);
+  color: var(--color-text-primary, #e2e8f0);
+  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-accent-cyan, #00d4ff);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.25);
+}
