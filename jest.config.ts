@@ -8,12 +8,15 @@ const config: Config = {
     '^.+\\.tsx?$': [
       'ts-jest',
       {
-        tsconfig: 'tsconfig.app.json',
+        tsconfig: 'tsconfig.test.json',
         useESM: false,
+        diagnostics: false,
       },
     ],
   },
   moduleNameMapper: {
+    // Mock constants to avoid import.meta (Vite-only API) in tests
+    '^@/services/constants$': '<rootDir>/src/services/__mocks__/constants.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|module\\.css)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|svg|webp)$': '<rootDir>/src/__tests__/__mocks__/fileMock.ts',

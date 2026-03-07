@@ -1,7 +1,7 @@
 import type { ApodResponse, NeoFeedResponse, DonkiFlareResponse } from '@/types';
 import { parseApiError } from '@/utils/errorHandler';
 import { apiCache } from '@/utils/apiCache';
-import { NASA_API_BASE_URL, NASA_ENDPOINTS, NASA_API_KEY } from './constants';
+import { NASA_API_BASE_URL, NASA_ENDPOINTS, NASA_API_KEY } from '@/services/constants';
 
 /**
  * Builds a URL with query parameters for NASA API requests

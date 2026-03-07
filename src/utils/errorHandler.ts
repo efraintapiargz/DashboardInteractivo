@@ -28,7 +28,10 @@ export function parseApiError(error: unknown, endpoint = 'unknown'): ApiError {
     };
   }
 
-  if (error instanceof Response) {
+  if (
+    typeof Response !== 'undefined' &&
+    error instanceof Response
+  ) {
     return {
       message: `HTTP ${error.status}: ${error.statusText}`,
       statusCode: error.status,
