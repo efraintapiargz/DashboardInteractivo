@@ -1,5 +1,6 @@
 import type { ApodResponse, NeoFeedResponse, DonkiFlareResponse } from '@/types';
 import { parseApiError } from '@/utils/errorHandler';
+import { apiCache } from '@/utils/apiCache';
 import { NASA_API_BASE_URL, NASA_ENDPOINTS, NASA_API_KEY } from './constants';
 
 /**
@@ -17,7 +18,7 @@ function buildUrl(endpoint: string, params: Record<string, string>): string {
 }
 
 /**
- * Generic fetch wrapper with error handling and typed responses
+ * Generic fetch wrapper with error handling, caching, and typed responses
  */
 async function fetchFromNasa<T>(
   endpoint: string,
@@ -25,6 +26,12 @@ async function fetchFromNasa<T>(
   signal?: AbortSignal,
 ): Promise<T> {
   const url = buildUrl(endpoint, params);
+
+  // Check cache first
+  const cached = apiCache.get<T>(url);
+  if (cached !== undefined) {
+    return cached;
+  }
 
   try {
     const response = await fetch(url, { signal });
@@ -34,6 +41,7 @@ async function fetchFromNasa<T>(
     }
 
     const data: T = await response.json();
+    apiCache.set(url, data);
     return data;
   } catch (error: unknown) {
     if (error instanceof Response) {

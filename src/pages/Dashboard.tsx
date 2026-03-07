@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import type { FlareClass } from '@/types';
 import { useNeoFeed } from '@/hooks/useNeoFeed';
 import { useSolarFlares } from '@/hooks/useSolarFlares';
@@ -6,12 +6,26 @@ import { DateRangePicker } from '@/components/filters/DateRangePicker';
 import { EventTypeSelector } from '@/components/filters/EventTypeSelector';
 import { ResetFiltersButton } from '@/components/filters/ResetFiltersButton';
 import ApodCard from '@/components/ApodCard';
-import { AsteroidSizeBarChart } from '@/components/charts/AsteroidSizeBarChart';
-import { SolarFlareTimelineChart } from '@/components/charts/SolarFlareTimelineChart';
-import { NeoHazardPieChart } from '@/components/charts/NeoHazardPieChart';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import styles from './Dashboard.module.css';
+
+/* Lazy-loaded chart components for code-splitting */
+const AsteroidSizeBarChart = lazy(() =>
+  import('@/components/charts/AsteroidSizeBarChart').then((m) => ({
+    default: m.AsteroidSizeBarChart,
+  })),
+);
+const SolarFlareTimelineChart = lazy(() =>
+  import('@/components/charts/SolarFlareTimelineChart').then((m) => ({
+    default: m.SolarFlareTimelineChart,
+  })),
+);
+const NeoHazardPieChart = lazy(() =>
+  import('@/components/charts/NeoHazardPieChart').then((m) => ({
+    default: m.NeoHazardPieChart,
+  })),
+);
 
 /** Returns today's date as YYYY-MM-DD */
 function todayStr(): string {
@@ -39,6 +53,23 @@ export default function Dashboard() {
   /* ---------- Data hooks ---------- */
   const neo = useNeoFeed(startDate, endDate);
   const flares = useSolarFlares(startDate, endDate);
+
+  /* ---------- Memoized computations ---------- */
+  const neoSummary = useMemo(
+    () => ({
+      total: neo.stats.totalCount,
+      hazardous: neo.stats.hazardousCount,
+      avgDiameter: neo.stats.averageDiameterKm.toFixed(2),
+      flareCount: flares.data.length,
+    }),
+    [neo.stats, flares.data.length],
+  );
+
+  /* ---------- Suspense fallback ---------- */
+  const chartFallback = useMemo(
+    () => <LoadingSkeleton showBlock lines={2} />,
+    [],
+  );
 
   /* ---------- Reset ---------- */
   const handleReset = useCallback(() => {
@@ -98,21 +129,21 @@ export default function Dashboard() {
               </div>
               <div className={styles.statsRow}>
                 <div className={styles.statCard}>
-                  <div className={styles.statValue}>{neo.stats.totalCount}</div>
+                  <div className={styles.statValue}>{neoSummary.total}</div>
                   <div className={styles.statLabel}>Total Asteroids</div>
                 </div>
                 <div className={styles.statCard}>
-                  <div className={styles.statValue}>{neo.stats.hazardousCount}</div>
+                  <div className={styles.statValue}>{neoSummary.hazardous}</div>
                   <div className={styles.statLabel}>Hazardous</div>
                 </div>
                 <div className={styles.statCard}>
                   <div className={styles.statValue}>
-                    {neo.stats.averageDiameterKm.toFixed(2)}
+                    {neoSummary.avgDiameter}
                   </div>
                   <div className={styles.statLabel}>Avg Ø (km)</div>
                 </div>
                 <div className={styles.statCard}>
-                  <div className={styles.statValue}>{flares.data.length}</div>
+                  <div className={styles.statValue}>{neoSummary.flareCount}</div>
                   <div className={styles.statLabel}>Solar Flares</div>
                 </div>
               </div>
@@ -132,7 +163,9 @@ export default function Dashboard() {
                 {neo.isLoading ? (
                   <LoadingSkeleton showBlock lines={2} />
                 ) : (
-                  <AsteroidSizeBarChart neoList={neo.neoList} />
+                  <Suspense fallback={chartFallback}>
+                    <AsteroidSizeBarChart neoList={neo.neoList} />
+                  </Suspense>
                 )}
               </div>
             </ErrorBoundary>
@@ -151,10 +184,12 @@ export default function Dashboard() {
                 {neo.isLoading ? (
                   <LoadingSkeleton showBlock lines={2} />
                 ) : (
-                  <NeoHazardPieChart
-                    hazardousCount={neo.stats.hazardousCount}
-                    nonHazardousCount={neo.stats.nonHazardousCount}
-                  />
+                  <Suspense fallback={chartFallback}>
+                    <NeoHazardPieChart
+                      hazardousCount={neo.stats.hazardousCount}
+                      nonHazardousCount={neo.stats.nonHazardousCount}
+                    />
+                  </Suspense>
                 )}
               </div>
             </ErrorBoundary>
@@ -173,7 +208,9 @@ export default function Dashboard() {
                 {flares.isLoading ? (
                   <LoadingSkeleton showBlock lines={2} />
                 ) : (
-                  <SolarFlareTimelineChart flares={flares.data} filterClass={eventType} />
+                  <Suspense fallback={chartFallback}>
+                    <SolarFlareTimelineChart flares={flares.data} filterClass={eventType} />
+                  </Suspense>
                 )}
               </div>
             </ErrorBoundary>
