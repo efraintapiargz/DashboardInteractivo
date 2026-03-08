@@ -1,6 +1,3 @@
-/**
- * NASA DONKI (Space Weather) Solar Flare API response interface
- */
 export interface DonkiFlareResponse {
   readonly flrID: string;
   readonly instruments: readonly {
@@ -18,6 +15,5 @@ export interface DonkiFlareResponse {
   readonly link: string;
 }
 
-/** Solar flare class categories */
 export const FLARE_CLASSES = ['C', 'M', 'X'] as const;
 export type FlareClass = (typeof FLARE_CLASSES)[number];

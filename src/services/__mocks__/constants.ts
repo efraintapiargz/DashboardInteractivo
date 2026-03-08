@@ -1,4 +1,3 @@
-/** Mock NASA API constants for test environment */
 export const NASA_API_BASE_URL = 'https://api.nasa.gov';
 
 export const NASA_ENDPOINTS = {

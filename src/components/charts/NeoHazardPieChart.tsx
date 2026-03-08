@@ -1,6 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { PieLabelRenderProps } from 'recharts';
-import styles from './Chart.module.css';
 
 export interface NeoHazardPieChartProps {
   hazardousCount: number;
@@ -17,9 +16,6 @@ const PIE_COLORS = {
   safe: '#22c55e',
 } as const;
 
-/**
- * Pie chart showing ratio of potentially hazardous vs non-hazardous asteroids.
- */
 export function NeoHazardPieChart({
   hazardousCount,
   nonHazardousCount,
@@ -28,7 +24,7 @@ export function NeoHazardPieChart({
 
   if (total === 0) {
     return (
-      <div className={styles.emptyState} role="status">
+      <div className="flex items-center justify-center min-h-[300px] text-text-secondary font-mono text-sm border border-dashed border-border rounded-lg" role="status">
         No asteroid data available
       </div>
     );
@@ -43,7 +39,7 @@ export function NeoHazardPieChart({
 
   return (
     <div
-      className={styles.chartWrapper}
+      className="w-full min-h-[300px] animate-[fade-in_0.6s_ease-in-out]"
       aria-label={`Pie chart: ${hazardousCount} hazardous and ${nonHazardousCount} non-hazardous asteroids`}
       role="img"
     >

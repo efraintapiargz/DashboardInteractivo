@@ -1,10 +1,8 @@
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
-import styles from './ErrorBoundary.module.css';
 
 export interface ErrorBoundaryProps {
   children: ReactNode;
-  /** Optional fallback component. If omitted, a default retry UI is shown. */
   fallback?: ReactNode;
 }
 
@@ -13,10 +11,6 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-/**
- * Class-based ErrorBoundary that catches render errors in its subtree.
- * Provides a retry button to re-mount children.
- */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -28,7 +22,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error('[ErrorBoundary] Caught error:', error, info.componentStack);
+    console.error('[ErrorBoundary]', error, info.componentStack);
   }
 
   private handleRetry = (): void => {
@@ -42,16 +36,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className={styles.errorBoundary} role="alert">
-          <div className={styles.icon} aria-hidden="true">
-            ⚠️
-          </div>
-          <h3 className={styles.title}>Something went wrong</h3>
-          <p className={styles.message}>
+        <div className="p-8 text-center bg-surface border border-border rounded-xl" role="alert">
+          <h3 className="font-sans text-lg font-semibold text-text-primary mb-2">Something went wrong</h3>
+          <p className="font-sans text-sm text-text-secondary mb-5 max-w-md mx-auto">
             {this.state.error?.message ?? 'An unexpected error occurred.'}
           </p>
           <button
-            className={styles.retryButton}
+            className="px-5 py-2 bg-transparent border border-accent-cyan rounded-md text-accent-cyan font-mono text-sm cursor-pointer transition-colors hover:bg-accent-cyan/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan/40"
             onClick={this.handleRetry}
             type="button"
             aria-label="Retry loading this section"

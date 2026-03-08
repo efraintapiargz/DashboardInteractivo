@@ -3,9 +3,12 @@ import { parseApiError } from '@/utils/errorHandler';
 import { apiCache } from '@/utils/apiCache';
 import { NASA_API_BASE_URL, NASA_ENDPOINTS, NASA_API_KEY } from '@/services/constants';
 
-/**
- * Builds a URL with query parameters for NASA API requests
- */
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 1500;
+
+// Tracks in-flight requests to avoid duplicate calls for the same URL
+const inflightRequests = new Map<string, Promise<unknown>>();
+
 function buildUrl(endpoint: string, params: Record<string, string>): string {
   const url = new URL(`${NASA_API_BASE_URL}${endpoint}`);
   url.searchParams.set('api_key', NASA_API_KEY);
@@ -17,9 +20,45 @@ function buildUrl(endpoint: string, params: Record<string, string>): string {
   return url.toString();
 }
 
-/**
- * Generic fetch wrapper with error handling, caching, and typed responses
- */
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry<T>(
+  url: string,
+  signal?: AbortSignal,
+): Promise<T> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(url, { signal });
+
+      if (response.status === 429) {
+        if (attempt < MAX_RETRIES) {
+          const retryAfter = response.headers.get('Retry-After');
+          const delayMs = retryAfter
+            ? parseInt(retryAfter, 10) * 1000
+            : BASE_DELAY_MS * Math.pow(2, attempt);
+          await wait(delayMs);
+          continue;
+        }
+      }
+
+      if (!response.ok) throw response;
+
+      return await response.json() as T;
+    } catch (error: unknown) {
+      lastError = error;
+      if (signal?.aborted) throw error;
+      if (error instanceof Response && error.status !== 429) throw error;
+      if (attempt === MAX_RETRIES) break;
+    }
+  }
+
+  throw lastError;
+}
+
 async function fetchFromNasa<T>(
   endpoint: string,
   params: Record<string, string>,
@@ -27,35 +66,30 @@ async function fetchFromNasa<T>(
 ): Promise<T> {
   const url = buildUrl(endpoint, params);
 
-  // Check cache first
   const cached = apiCache.get<T>(url);
-  if (cached !== undefined) {
-    return cached;
-  }
+  if (cached !== undefined) return cached;
 
-  try {
-    const response = await fetch(url, { signal });
+  // Deduplicate: reuse in-flight request for the same URL
+  const inflight = inflightRequests.get(url) as Promise<T> | undefined;
+  if (inflight) return inflight;
 
-    if (!response.ok) {
-      throw response;
-    }
-
-    const data: T = await response.json();
-    apiCache.set(url, data);
-    return data;
-  } catch (error: unknown) {
-    if (error instanceof Response) {
+  const request = fetchWithRetry<T>(url, signal)
+    .then((data) => {
+      apiCache.set(url, data);
+      return data;
+    })
+    .catch((error: unknown) => {
+      if (error instanceof Response) throw parseApiError(error, endpoint);
       throw parseApiError(error, endpoint);
-    }
-    throw parseApiError(error, endpoint);
-  }
+    })
+    .finally(() => {
+      inflightRequests.delete(url);
+    });
+
+  inflightRequests.set(url, request);
+  return request;
 }
 
-/**
- * Fetches the Astronomy Picture of the Day
- * @param date - Optional date in YYYY-MM-DD format
- * @param signal - Optional AbortSignal for cancellation
- */
 export async function fetchApod(
   date?: string,
   signal?: AbortSignal,
@@ -67,12 +101,6 @@ export async function fetchApod(
   return fetchFromNasa<ApodResponse>(NASA_ENDPOINTS.APOD, params, signal);
 }
 
-/**
- * Fetches Near Earth Objects for a date range
- * @param startDate - Start date in YYYY-MM-DD format
- * @param endDate - End date in YYYY-MM-DD format (max 7 days from start)
- * @param signal - Optional AbortSignal for cancellation
- */
 export async function fetchNeoFeed(
   startDate: string,
   endDate: string,
@@ -85,12 +113,6 @@ export async function fetchNeoFeed(
   );
 }
 
-/**
- * Fetches Solar Flare events from DONKI
- * @param startDate - Start date in YYYY-MM-DD format
- * @param endDate - End date in YYYY-MM-DD format
- * @param signal - Optional AbortSignal for cancellation
- */
 export async function fetchSolarFlares(
   startDate: string,
   endDate: string,

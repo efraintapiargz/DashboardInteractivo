@@ -10,10 +10,6 @@ interface UseSolarFlaresResult {
   refetch: () => void;
 }
 
-/**
- * Hook to fetch DONKI Solar Flare events for a date range.
- * Cleans up on unmount using AbortController.
- */
 export function useSolarFlares(
   startDate: string,
   endDate: string,

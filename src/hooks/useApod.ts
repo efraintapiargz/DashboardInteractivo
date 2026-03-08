@@ -10,10 +10,6 @@ interface UseApodResult {
   refetch: () => void;
 }
 
-/**
- * Hook to fetch the Astronomy Picture of the Day.
- * Automatically cleans up on unmount using AbortController.
- */
 export function useApod(date?: string): UseApodResult {
   const [data, setData] = useState<ApodResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);

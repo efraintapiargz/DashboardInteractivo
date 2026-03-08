@@ -1,8 +1,5 @@
 import type { FlareClass } from './donki';
 
-/**
- * Dashboard filter state interface
- */
 export interface DashboardFilters {
   readonly dateRange: {
     readonly startDate: string;

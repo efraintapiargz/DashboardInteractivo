@@ -1,7 +1,3 @@
-/**
- * NASA NEO (Near Earth Objects) API response interfaces
- */
-
 export interface CloseApproachData {
   readonly close_approach_date: string;
   readonly close_approach_date_full: string;

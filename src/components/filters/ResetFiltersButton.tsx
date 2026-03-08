@@ -1,14 +1,9 @@
 import { useCallback } from 'react';
-import styles from './ResetFiltersButton.module.css';
 
 export interface ResetFiltersButtonProps {
   onReset: () => void;
 }
 
-/**
- * Button to reset all dashboard filters to their defaults.
- * Accessible with keyboard focus ring and proper labeling.
- */
 export function ResetFiltersButton({ onReset }: ResetFiltersButtonProps) {
   const handleClick = useCallback(() => {
     onReset();
@@ -27,7 +22,7 @@ export function ResetFiltersButton({ onReset }: ResetFiltersButtonProps) {
   return (
     <button
       type="button"
-      className={styles.resetButton}
+      className="px-4 py-2 border border-border rounded-md bg-transparent text-accent-amber font-mono text-xs uppercase tracking-wide cursor-pointer transition-colors self-end hover:bg-accent-amber/10 hover:border-accent-amber focus-visible:outline-none focus-visible:border-accent-cyan focus-visible:ring-2 focus-visible:ring-accent-cyan/25"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       aria-label="Reset all filters to default values"

@@ -9,7 +9,6 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import type { NeoObject } from '@/types';
-import styles from './Chart.module.css';
 
 export interface AsteroidSizeBarChartProps {
   neoList: NeoObject[];
@@ -29,9 +28,6 @@ const CHART_COLORS = {
 
 const MAX_ASTEROIDS_DISPLAYED = 15;
 
-/**
- * Transforms NEO data into chart-ready format
- */
 function prepareChartData(neoList: NeoObject[]): ChartDatum[] {
   return neoList.slice(0, MAX_ASTEROIDS_DISPLAYED).map((neo) => ({
     name: neo.name.replace(/[()]/g, '').substring(0, 15),
@@ -48,14 +44,10 @@ function prepareChartData(neoList: NeoObject[]): ChartDatum[] {
   }));
 }
 
-/**
- * Bar chart comparing estimated diameters of NEOs in the selected date range.
- * Uses Recharts BarChart with Tooltip and Legend.
- */
 export function AsteroidSizeBarChart({ neoList }: AsteroidSizeBarChartProps) {
   if (neoList.length === 0) {
     return (
-      <div className={styles.emptyState} role="status">
+      <div className="flex items-center justify-center min-h-[300px] text-text-secondary font-mono text-sm border border-dashed border-border rounded-lg" role="status">
         No asteroid data available
       </div>
     );
@@ -65,7 +57,7 @@ export function AsteroidSizeBarChart({ neoList }: AsteroidSizeBarChartProps) {
 
   return (
     <div
-      className={styles.chartWrapper}
+      className="w-full min-h-[300px] animate-[fade-in_0.6s_ease-in-out]"
       aria-label="Bar chart comparing estimated diameters of near-Earth asteroids"
       role="img"
     >

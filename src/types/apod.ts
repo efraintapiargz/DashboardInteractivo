@@ -1,6 +1,3 @@
-/**
- * NASA APOD (Astronomy Picture of the Day) API response interface
- */
 export interface ApodResponse {
   readonly copyright?: string;
   readonly date: string;

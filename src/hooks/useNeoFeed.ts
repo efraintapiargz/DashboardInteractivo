@@ -26,18 +26,12 @@ const EMPTY_STATS: NeoStats = {
   averageDiameterKm: 0,
 };
 
-/**
- * Flattens NEO feed response into a single list of NeoObjects
- */
 function flattenNeoObjects(
   response: NeoFeedResponse,
 ): NeoObject[] {
   return Object.values(response.near_earth_objects).flat();
 }
 
-/**
- * Computes statistics from a list of NeoObjects
- */
 function computeNeoStats(neoList: NeoObject[]): NeoStats {
   if (neoList.length === 0) return EMPTY_STATS;
 
@@ -58,10 +52,6 @@ function computeNeoStats(neoList: NeoObject[]): NeoStats {
   };
 }
 
-/**
- * Hook to fetch Near Earth Objects for a date range.
- * Returns parsed list + stats. Cleans up on unmount.
- */
 export function useNeoFeed(
   startDate: string,
   endDate: string,

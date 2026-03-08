@@ -4,9 +4,7 @@ const UNKNOWN_ERROR_MESSAGE = 'An unknown error occurred';
 const NETWORK_ERROR_MESSAGE = 'Network error: Unable to reach the server';
 const ABORT_ERROR_MESSAGE = 'Request was cancelled';
 
-/**
- * Parses an unknown error into a standardized ApiError object
- */
+// Parses an unknown error into a standardized ApiError
 export function parseApiError(error: unknown, endpoint = 'unknown'): ApiError {
   const timestamp = new Date().toISOString();
 

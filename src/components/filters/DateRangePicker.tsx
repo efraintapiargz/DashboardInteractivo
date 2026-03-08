@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import styles from './DateRangePicker.module.css';
 
 const MAX_NEO_RANGE_DAYS = 7;
 
@@ -10,9 +9,7 @@ export interface DateRangePickerProps {
   onEndDateChange: (date: string) => void;
 }
 
-/**
- * Computes the difference in days between two date strings
- */
+// Difference in days between two date strings
 function daysBetween(start: string, end: string): number {
   const msPerDay = 86_400_000;
   const startMs = new Date(start).getTime();
@@ -20,10 +17,6 @@ function daysBetween(start: string, end: string): number {
   return Math.round((endMs - startMs) / msPerDay);
 }
 
-/**
- * DateRangePicker — two date inputs with validation (max 7 days for NEO).
- * Fully keyboard-navigable with proper ARIA attributes.
- */
 export function DateRangePicker({
   startDate,
   endDate,
@@ -78,18 +71,18 @@ export function DateRangePicker({
 
   return (
     <div
-      className={styles.dateRangePicker}
+      className="flex flex-wrap gap-2 items-end"
       role="group"
       aria-label="Date range picker"
     >
-      <div className={styles.fieldGroup}>
-        <label htmlFor="start-date" className={styles.label}>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="start-date" className="font-mono text-xs uppercase tracking-wide text-text-secondary">
           Start Date
         </label>
         <input
           id="start-date"
           type="date"
-          className={styles.input}
+          className="px-3 py-2 border border-border rounded-md bg-surface text-text-primary font-mono text-sm transition-colors focus:outline-none focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/25 [&::-webkit-calendar-picker-indicator]:invert-[0.8]"
           value={startDate}
           onChange={handleStartChange}
           aria-label="Start date"
@@ -98,14 +91,14 @@ export function DateRangePicker({
         />
       </div>
 
-      <div className={styles.fieldGroup}>
-        <label htmlFor="end-date" className={styles.label}>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="end-date" className="font-mono text-xs uppercase tracking-wide text-text-secondary">
           End Date
         </label>
         <input
           id="end-date"
           type="date"
-          className={styles.input}
+          className="px-3 py-2 border border-border rounded-md bg-surface text-text-primary font-mono text-sm transition-colors focus:outline-none focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/25 [&::-webkit-calendar-picker-indicator]:invert-[0.8]"
           value={endDate}
           onChange={handleEndChange}
           aria-label="End date"
@@ -115,7 +108,7 @@ export function DateRangePicker({
       </div>
 
       {validationError && (
-        <p id={errorId} className={styles.errorMessage} role="alert">
+        <p id={errorId} className="text-error text-xs mt-1 font-sans" role="alert">
           {validationError}
         </p>
       )}

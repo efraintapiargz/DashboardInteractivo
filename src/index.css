@@ -1,18 +1,7 @@
-/* ============================
-   Global styles — Space Theme
-   ============================ */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+@import 'tailwindcss';
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  /* Colors */
+@theme {
   --color-bg: #0a0e1a;
   --color-surface: #111827;
   --color-surface-alt: #162032;
@@ -25,18 +14,19 @@
   --color-error: #ef4444;
   --color-success: #22c55e;
 
-  /* Fonts */
   --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'Space Mono', 'Fira Code', monospace;
+}
 
-  /* Spacing */
-  --gutter: 1rem;
-  --header-height: 64px;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
-
+:root {
   font-family: var(--font-sans);
   line-height: 1.5;
   font-weight: 400;
@@ -61,7 +51,6 @@ body {
   flex-direction: column;
 }
 
-/* Utility: screen-reader only */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -74,7 +63,6 @@ body {
   border-width: 0;
 }
 
-/* Global focus ring */
 :focus-visible {
   outline: 2px solid var(--color-accent-cyan);
   outline-offset: 2px;
@@ -83,14 +71,13 @@ body {
 a {
   color: var(--color-accent-cyan);
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: color 150ms ease;
 }
 
 a:hover {
   color: var(--color-accent-amber);
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -105,7 +92,6 @@ a:hover {
   background: var(--color-text-tertiary);
 }
 
-/* Skip-to-content link */
 .skip-link {
   position: absolute;
   top: -100%;
@@ -120,10 +106,25 @@ a:hover {
   font-weight: 700;
   border-radius: 0 0 8px 8px;
   text-decoration: none;
-  transition: top var(--transition-fast);
+  transition: top 150ms ease;
 }
 
 .skip-link:focus {
   top: 0;
   outline: none;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }

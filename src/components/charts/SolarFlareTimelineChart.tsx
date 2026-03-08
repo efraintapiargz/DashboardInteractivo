@@ -10,7 +10,6 @@ import {
 } from 'recharts';
 import type { ValueType, NameType, Payload } from 'recharts/types/component/DefaultTooltipContent';
 import type { DonkiFlareResponse, FlareClass } from '@/types';
-import styles from './Chart.module.css';
 
 export interface SolarFlareTimelineChartProps {
   flares: DonkiFlareResponse[];
@@ -30,24 +29,15 @@ const FLARE_CLASS_COLORS: Record<string, string> = {
   X: '#ef4444',
 };
 
-/**
- * Extracts the numeric intensity from a class type string (e.g., "M1.2" -> 1.2)
- */
 function extractIntensity(classType: string): number {
   const match = classType.match(/[CMX](\d+\.?\d*)/);
   return match ? parseFloat(match[1]) : 0;
 }
 
-/**
- * Gets the base class letter from a class type (e.g., "M1.2" -> "M")
- */
 function getBaseClass(classType: string): string {
   return classType.charAt(0).toUpperCase();
 }
 
-/**
- * Transforms flare data into chart-ready format
- */
 function prepareChartData(
   flares: DonkiFlareResponse[],
   filterClass?: FlareClass | null,
@@ -70,17 +60,13 @@ function prepareChartData(
     }));
 }
 
-/**
- * Line chart of solar flare intensity over time.
- * Color-coded by flare class. Includes Tooltip and Legend.
- */
 export function SolarFlareTimelineChart({
   flares,
   filterClass,
 }: SolarFlareTimelineChartProps) {
   if (flares.length === 0) {
     return (
-      <div className={styles.emptyState} role="status">
+      <div className="flex items-center justify-center min-h-[300px] text-text-secondary font-mono text-sm border border-dashed border-border rounded-lg" role="status">
         No solar flare data available
       </div>
     );
@@ -90,7 +76,7 @@ export function SolarFlareTimelineChart({
 
   if (chartData.length === 0) {
     return (
-      <div className={styles.emptyState} role="status">
+      <div className="flex items-center justify-center min-h-[300px] text-text-secondary font-mono text-sm border border-dashed border-border rounded-lg" role="status">
         No flares matching the selected class
       </div>
     );
@@ -100,7 +86,7 @@ export function SolarFlareTimelineChart({
 
   return (
     <div
-      className={styles.chartWrapper}
+      className="w-full min-h-[300px] animate-[fade-in_0.6s_ease-in-out]"
       aria-label="Timeline chart showing solar flare intensity over time"
       role="img"
     >
