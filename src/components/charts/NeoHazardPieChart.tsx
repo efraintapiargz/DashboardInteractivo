@@ -12,8 +12,8 @@ interface PieDatum {
 }
 
 const PIE_COLORS = {
-  hazardous: '#ef4444',
-  safe: '#22c55e',
+  hazardous: '#dc2626',
+  safe: '#16a34a',
 } as const;
 
 export function NeoHazardPieChart({
@@ -24,7 +24,7 @@ export function NeoHazardPieChart({
 
   if (total === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-text-secondary font-mono text-sm border border-dashed border-border rounded-lg" role="status">
+      <div className="flex items-center justify-center h-[300px] text-slate-400 text-sm" role="status">
         No asteroid data available
       </div>
     );
@@ -39,18 +39,18 @@ export function NeoHazardPieChart({
 
   return (
     <div
-      className="w-full min-h-[300px] animate-[fade-in_0.6s_ease-in-out]"
+      className="w-full h-[300px]"
       aria-label={`Pie chart: ${hazardousCount} hazardous and ${nonHazardousCount} non-hazardous asteroids`}
       role="img"
     >
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={100}
+            cy="45%"
+            innerRadius={50}
+            outerRadius={85}
             paddingAngle={3}
             dataKey="value"
             label={(props: PieLabelRenderProps) => {
@@ -58,28 +58,26 @@ export function NeoHazardPieChart({
               const percent = Number(props.percent ?? 0);
               return `${name}: ${(percent * 100).toFixed(0)}%`;
             }}
-            labelLine={{ stroke: '#94a3b8' }}
+            labelLine={{ stroke: '#a1a1aa' }}
           >
             {data.map((entry, index) => (
               <Cell
                 key={entry.name}
                 fill={colors[index]}
-                stroke="none"
+                stroke="#ffffff"
+                strokeWidth={2}
               />
             ))}
           </Pie>
           <Tooltip
             contentStyle={{
-              background: '#0a0e1a',
-              border: '1px solid #1e293b',
-              borderRadius: 6,
-              fontFamily: 'Space Mono, monospace',
+              background: '#fff',
+              border: '1px solid #e4e4e7',
+              borderRadius: 4,
               fontSize: 12,
             }}
           />
-          <Legend
-            wrapperStyle={{ fontFamily: 'Space Mono, monospace', fontSize: 12 }}
-          />
+          <Legend wrapperStyle={{ fontSize: 12 }} />
         </PieChart>
       </ResponsiveContainer>
     </div>

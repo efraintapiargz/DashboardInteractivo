@@ -5,8 +5,14 @@ function toIsoDate(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
+function yesterdayIso(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return toIsoDate(d);
+}
+
 export default function ApodCard() {
-  const [selectedDate, setSelectedDate] = useState<string>(toIsoDate(new Date()));
+  const [selectedDate, setSelectedDate] = useState<string>(yesterdayIso());
   const { data, isLoading, error, refetch } = useApod(selectedDate);
 
   const handleDateChange = useCallback(
@@ -18,11 +24,12 @@ export default function ApodCard() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl overflow-hidden bg-surface border border-border" role="status" aria-label="Loading APOD content">
-        <div className="w-full aspect-video bg-gradient-to-r from-border via-[#334155] to-border bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
-        <div className="h-4 mx-5 my-3 rounded bg-gradient-to-r from-border via-[#334155] to-border bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
-        <div className="h-4 mx-5 my-3 rounded bg-gradient-to-r from-border via-[#334155] to-border bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] w-3/5" />
-        <div className="h-4 mx-5 my-3 rounded bg-gradient-to-r from-border via-[#334155] to-border bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
+      <div className="rounded-2xl overflow-hidden bg-white" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e5e7eb' }} role="status" aria-label="Loading APOD content">
+        <div className="w-full aspect-video bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
+        <div className="p-5 space-y-2">
+          <div className="h-4 rounded bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
+          <div className="h-4 rounded bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] w-3/5" />
+        </div>
         <span className="sr-only">Loading…</span>
       </div>
     );
@@ -30,10 +37,10 @@ export default function ApodCard() {
 
   if (error) {
     return (
-      <div className="p-8 text-center bg-surface border border-border rounded-xl" role="alert">
-        <p className="font-sans text-error mb-4">{error.message}</p>
+      <div className="p-6 text-center bg-white rounded-2xl" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e5e7eb' }} role="alert">
+        <p className="text-red-600 text-sm mb-3">{error.message}</p>
         <button
-          className="px-4 py-2 bg-transparent border border-accent-cyan rounded-md text-accent-cyan font-mono text-sm cursor-pointer transition-colors hover:bg-accent-cyan/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan/40"
+          className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-medium cursor-pointer hover:bg-slate-800 transition-colors"
           onClick={refetch}
           type="button"
           aria-label="Retry loading Astronomy Picture of the Day"
@@ -52,41 +59,41 @@ export default function ApodCard() {
   const todayStr = toIsoDate(new Date());
 
   return (
-    <article className="bg-surface border border-border rounded-xl overflow-hidden animate-[fade-in_0.6s_ease-in-out]" aria-label="Astronomy Picture of the Day">
-      {isVideo ? (
-        <div className="w-full aspect-video">
-          <iframe
-            className="w-full h-full border-none"
-            src={data.url}
-            title={data.title}
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          />
-        </div>
-      ) : (
-        <div className="relative w-full aspect-video overflow-hidden bg-bg">
-          <img
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"
-            src={data.url}
-            alt={data.title}
-            loading="lazy"
-          />
-        </div>
-      )}
+    <article className="bg-white rounded-2xl overflow-hidden h-full" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', border: '1px solid #e5e7eb' }} aria-label="Astronomy Picture of the Day">
+      <div className="flex flex-col md:flex-row">
+        {isVideo ? (
+          <div className="w-full md:w-1/2 aspect-video md:aspect-auto md:min-h-[280px]">
+            <iframe
+              className="w-full h-full border-none"
+              src={data.url}
+              title={data.title}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
+          </div>
+        ) : (
+          <div className="relative w-full md:w-1/2 aspect-video md:aspect-auto md:min-h-[280px] overflow-hidden bg-slate-100">
+            <img
+              className="w-full h-full object-cover"
+              src={data.url}
+              alt={data.title}
+              loading="lazy"
+            />
+          </div>
+        )}
 
-      <div className="p-5">
-        <div className="flex justify-between items-start gap-4 mb-3">
-          <h2 className="font-sans text-xl font-bold text-text-primary m-0 leading-tight">
-            {data.title}
-          </h2>
-          <div className="flex items-center gap-2 shrink-0">
-            <label className="font-mono text-[0.7rem] uppercase tracking-wide text-text-secondary" htmlFor="apod-date-picker">
-              Date
-            </label>
+        <div className="flex-1 p-5 flex flex-col">
+          <div className="flex justify-between items-start gap-3 mb-2">
+            <div>
+              <p className="text-xs text-slate-400 mb-0.5">Imagen astronómica del día</p>
+              <h2 className="text-base font-medium text-slate-900 leading-snug">
+                {data.title}
+              </h2>
+            </div>
             <input
               id="apod-date-picker"
               type="date"
-              className="px-2 py-1 border border-border rounded-md bg-bg text-text-primary font-mono text-xs focus:outline-none focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/25 [&::-webkit-calendar-picker-indicator]:invert-[0.8]"
+              className="h-8 px-2 border border-slate-200 rounded-lg bg-white text-slate-900 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 shrink-0"
               value={selectedDate}
               max={todayStr}
               min="1995-06-16"
@@ -94,17 +101,17 @@ export default function ApodCard() {
               aria-label="Select APOD date"
             />
           </div>
-        </div>
 
-        <p className="font-sans text-sm text-text-secondary leading-relaxed m-0 line-clamp-4">
-          {data.explanation}
-        </p>
-
-        {data.copyright && (
-          <p className="font-mono text-[0.7rem] text-text-tertiary mt-3">
-            &copy; {data.copyright}
+          <p className="text-sm text-slate-600 leading-relaxed line-clamp-5 flex-1">
+            {data.explanation}
           </p>
-        )}
+
+          {data.copyright && (
+            <p className="text-xs text-slate-400 mt-3">
+              &copy; {data.copyright}
+            </p>
+          )}
+        </div>
       </div>
     </article>
   );

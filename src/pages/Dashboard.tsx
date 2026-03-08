@@ -37,11 +37,10 @@ function daysAgoStr(n: number): string {
 }
 
 export default function Dashboard() {
-  const [startDate, setStartDate] = useState(daysAgoStr(3));
+  const [startDate, setStartDate] = useState(daysAgoStr(30));
   const [endDate, setEndDate] = useState(todayStr());
   const [eventType, setEventType] = useState<FlareClass | null>(null);
 
-  // Debounce dates 600ms to avoid firing requests on every keystroke/change
   const debouncedStart = useDebounce(startDate, 600);
   const debouncedEnd = useDebounce(endDate, 600);
 
@@ -64,13 +63,13 @@ export default function Dashboard() {
   );
 
   const handleReset = useCallback(() => {
-    setStartDate(daysAgoStr(3));
+    setStartDate(daysAgoStr(30));
     setEndDate(todayStr());
     setEventType(null);
   }, []);
 
   return (
-    <>
+    <div className="w-full min-h-screen" style={{ backgroundColor: '#f0f4f8' }}>
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
@@ -81,143 +80,208 @@ export default function Dashboard() {
           : `Loaded ${neoSummary.total} asteroids and ${neoSummary.flareCount} solar flares.`}
       </div>
 
-      <header
-        className="sticky top-0 z-50 flex items-center justify-between h-16 px-4 bg-bg/85 backdrop-blur-md border-b border-border max-sm:flex-col max-sm:h-auto max-sm:py-3 max-sm:gap-2"
-        role="banner"
-      >
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-lg font-bold bg-gradient-to-br from-accent-cyan to-accent-amber bg-clip-text text-transparent">
-            NASA Dashboard
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 font-mono text-[0.7rem] text-success uppercase tracking-wide" aria-live="polite">
-            <span className="w-1.5 h-1.5 rounded-full bg-success animate-[pulse-dot_2s_ease-in-out_infinite]" />
-            Live
-          </span>
+      {/* ── Header (dark) ── */}
+      <header className="sticky top-0 z-50" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }} role="banner">
+        <div className="w-full px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+              <span className="text-white text-sm font-bold">N</span>
+            </div>
+            <h1 className="text-base font-semibold text-white tracking-tight">
+              NASA Dashboard
+            </h1>
+          </div>
+          {(neo.isLoading || flares.isLoading) && (
+            <span className="text-xs text-slate-400 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              Cargando datos...
+            </span>
+          )}
         </div>
       </header>
 
-      <nav
-        className="flex flex-wrap items-end gap-4 px-4 py-4 bg-surface border-b border-border max-sm:flex-col max-sm:items-stretch"
-        aria-label="Dashboard filters"
-      >
-        <DateRangePicker
-          startDate={startDate}
-          endDate={endDate}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-        />
-        <EventTypeSelector value={eventType} onChange={setEventType} />
-        <ResetFiltersButton onReset={handleReset} />
-      </nav>
-
-      <main id="main-content" className="flex-1 p-4 animate-[fade-in_0.4s_ease-in-out]">
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-12 lg:col-span-6">
-            <ErrorBoundary>
-              <ApodCard />
-            </ErrorBoundary>
+      {/* ── Filters bar ── */}
+      <div className="w-full border-b" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-wrap items-end gap-3 mb-2">
+            <DateRangePicker
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+            />
+            <EventTypeSelector value={eventType} onChange={setEventType} />
+            <ResetFiltersButton onReset={handleReset} />
           </div>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Selecciona un rango de fechas (máx. 30 días) para consultar asteroides cercanos y actividad solar.
+            Usa el filtro de clase para ver solo llamaradas C, M o X en la línea de tiempo.
+          </p>
+        </div>
+      </div>
 
-          <div className="col-span-12 lg:col-span-6">
-            <div className="bg-surface border border-border rounded-xl p-5 animate-[fade-in_0.6s_ease-in-out]">
-              <div className="flex items-center gap-2 mb-4">
-                <h2 className="font-sans text-sm font-semibold text-text-primary uppercase tracking-wide">
-                  NEO Summary
-                </h2>
+      {/* ── Main content ── */}
+      <main id="main-content" className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+
+          {/* ── Section: Métricas clave ── */}
+          <section>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                value={neoSummary.total}
+                label="Asteroides detectados"
+                accentColor="#6366f1"
+              />
+              <StatCard
+                value={neoSummary.hazardous}
+                label="Potencialmente peligrosos"
+                accentColor="#ef4444"
+              />
+              <StatCard
+                value={`${neoSummary.avgDiameter} km`}
+                label="Diámetro promedio"
+                accentColor="#0ea5e9"
+              />
+              <StatCard
+                value={neoSummary.flareCount}
+                label="Llamaradas solares"
+                accentColor="#f59e0b"
+              />
+            </div>
+          </section>
+
+          {/* ── Section: Imagen del día + Riesgo ── */}
+          <section>
+            <SectionHeader title="Exploración espacial" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
+              <div className="lg:col-span-8">
+                <ErrorBoundary>
+                  <ApodCard />
+                </ErrorBoundary>
               </div>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
-                <StatCard value={neoSummary.total} label="Total Asteroids" />
-                <StatCard value={neoSummary.hazardous} label="Hazardous" />
-                <StatCard value={neoSummary.avgDiameter} label="Avg Diameter (km)" />
-                <StatCard value={neoSummary.flareCount} label="Solar Flares" />
+
+              <div className="lg:col-span-4 flex flex-col">
+                <div className="bg-white rounded-2xl p-6 flex-1" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', border: '1px solid #e5e7eb' }}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
+                    <h2 className="text-sm font-semibold text-slate-700">
+                      Clasificación de riesgo
+                    </h2>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Proporción de asteroides peligrosos vs. seguros.
+                  </p>
+                  <ErrorBoundary>
+                    {neo.isLoading ? (
+                      <LoadingSkeleton showBlock lines={2} />
+                    ) : (
+                      <Suspense fallback={chartFallback}>
+                        <NeoHazardPieChart
+                          hazardousCount={neo.stats.hazardousCount}
+                          nonHazardousCount={neo.stats.nonHazardousCount}
+                        />
+                      </Suspense>
+                    )}
+                  </ErrorBoundary>
+                </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="col-span-12 lg:col-span-6">
-            <ErrorBoundary>
-              <div className="bg-surface border border-border rounded-xl p-5 animate-[fade-in_0.6s_ease-in-out]">
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="font-sans text-sm font-semibold text-text-primary uppercase tracking-wide">
-                    Asteroid Sizes
+          {/* ── Section: Análisis ── */}
+          <section>
+            <SectionHeader title="Análisis detallado" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+
+              <div className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', border: '1px solid #e5e7eb' }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: '#6366f1' }} />
+                  <h2 className="text-sm font-semibold text-slate-700">
+                    Tamaño de asteroides
                   </h2>
                 </div>
-                {neo.isLoading ? (
-                  <LoadingSkeleton showBlock lines={2} />
-                ) : (
-                  <Suspense fallback={chartFallback}>
-                    <AsteroidSizeBarChart neoList={neo.neoList} />
-                  </Suspense>
-                )}
+                <p className="text-xs text-slate-400 mb-4">
+                  Diámetro estimado (min/max) de los 10 asteroides más recientes.
+                </p>
+                <ErrorBoundary>
+                  {neo.isLoading ? (
+                    <LoadingSkeleton showBlock lines={2} />
+                  ) : (
+                    <Suspense fallback={chartFallback}>
+                      <AsteroidSizeBarChart neoList={neo.neoList} />
+                    </Suspense>
+                  )}
+                </ErrorBoundary>
               </div>
-            </ErrorBoundary>
-          </div>
 
-          <div className="col-span-12 lg:col-span-6">
-            <ErrorBoundary>
-              <div className="bg-surface border border-border rounded-xl p-5 animate-[fade-in_0.6s_ease-in-out]">
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="font-sans text-sm font-semibold text-text-primary uppercase tracking-wide">
-                    Hazard Classification
+              <div className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', border: '1px solid #e5e7eb' }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: '#f59e0b' }} />
+                  <h2 className="text-sm font-semibold text-slate-700">
+                    Línea de tiempo &mdash; Llamaradas solares
                   </h2>
                 </div>
-                {neo.isLoading ? (
-                  <LoadingSkeleton showBlock lines={2} />
-                ) : (
-                  <Suspense fallback={chartFallback}>
-                    <NeoHazardPieChart
-                      hazardousCount={neo.stats.hazardousCount}
-                      nonHazardousCount={neo.stats.nonHazardousCount}
-                    />
-                  </Suspense>
-                )}
+                <p className="text-xs text-slate-400 mb-4">
+                  Intensidad de las llamaradas registradas en el rango seleccionado.
+                  {eventType && <> Filtro activo: <strong className="text-amber-600">Clase {eventType}</strong>.</>}
+                </p>
+                <ErrorBoundary>
+                  {flares.isLoading ? (
+                    <LoadingSkeleton showBlock lines={2} />
+                  ) : (
+                    <Suspense fallback={chartFallback}>
+                      <SolarFlareTimelineChart flares={flares.data} filterClass={eventType} />
+                    </Suspense>
+                  )}
+                </ErrorBoundary>
               </div>
-            </ErrorBoundary>
-          </div>
 
-          <div className="col-span-12">
-            <ErrorBoundary>
-              <div className="bg-surface border border-border rounded-xl p-5 animate-[fade-in_0.6s_ease-in-out]">
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="font-sans text-sm font-semibold text-text-primary uppercase tracking-wide">
-                    Solar Flare Timeline
-                  </h2>
-                </div>
-                {flares.isLoading ? (
-                  <LoadingSkeleton showBlock lines={2} />
-                ) : (
-                  <Suspense fallback={chartFallback}>
-                    <SolarFlareTimelineChart flares={flares.data} filterClass={eventType} />
-                  </Suspense>
-                )}
-              </div>
-            </ErrorBoundary>
-          </div>
+            </div>
+          </section>
+
         </div>
       </main>
 
-      <footer className="px-4 py-4 text-center border-t border-border font-mono text-[0.7rem] text-text-tertiary" role="contentinfo">
-        Powered by{' '}
-        <a
-          className="text-accent-cyan no-underline hover:underline"
-          href="https://api.nasa.gov"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+      {/* ── Footer ── */}
+      <footer className="w-full py-5 text-center text-xs text-slate-400" style={{ borderTop: '1px solid #e2e8f0' }} role="contentinfo">
+        Datos obtenidos de{' '}
+        <a href="https://api.nasa.gov" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:text-indigo-600 font-medium">
           NASA Open APIs
         </a>
       </footer>
-    </>
+    </div>
   );
 }
 
-function StatCard({ value, label }: { value: string | number; label: string }) {
+function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="p-4 bg-surface-alt border border-border rounded-lg text-center">
-      <div className="font-mono text-2xl font-bold text-accent-cyan">{value}</div>
-      <div className="font-sans text-xs text-text-secondary uppercase tracking-wide mt-1">{label}</div>
+    <div className="flex items-center gap-3">
+      <h2 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">{title}</h2>
+      <div className="flex-1 h-px" style={{ backgroundColor: '#e2e8f0' }} />
+    </div>
+  );
+}
+
+function StatCard({ value, label, accentColor }: {
+  value: string | number;
+  label: string;
+  accentColor: string;
+}) {
+  return (
+    <div
+      className="bg-white rounded-2xl px-5 py-5 transition-all hover:shadow-md flex flex-col items-center text-center"
+      style={{
+        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+        border: '1px solid #e5e7eb',
+      }}
+    >
+      <div className="text-xs text-slate-400 font-medium mb-2 uppercase tracking-wide">{label}</div>
+      <div
+        className="text-3xl font-bold tabular-nums tracking-tight"
+        style={{ color: accentColor }}
+      >
+        {value}
+      </div>
     </div>
   );
 }

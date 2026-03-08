@@ -22,7 +22,7 @@ export function ResetFiltersButton({ onReset }: ResetFiltersButtonProps) {
   return (
     <button
       type="button"
-      className="px-4 py-2 border border-border rounded-md bg-transparent text-accent-amber font-mono text-xs uppercase tracking-wide cursor-pointer transition-colors self-end hover:bg-accent-amber/10 hover:border-accent-amber focus-visible:outline-none focus-visible:border-accent-cyan focus-visible:ring-2 focus-visible:ring-accent-cyan/25"
+      className="h-9 px-4 border border-slate-200 rounded-lg bg-white text-slate-600 text-sm cursor-pointer self-end hover:bg-slate-50 hover:text-slate-900 transition-colors focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       aria-label="Reset all filters to default values"

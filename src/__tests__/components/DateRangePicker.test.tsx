@@ -51,14 +51,14 @@ describe('DateRangePicker', () => {
     expect(defaultProps.onEndDateChange).toHaveBeenCalledWith('2024-01-06');
   });
 
-  it('shows validation error when range exceeds 7 days', () => {
+  it('shows validation error when range exceeds 30 days', () => {
     render(<DateRangePicker {...defaultProps} />);
 
     const endInput = screen.getByLabelText('End date');
-    fireEvent.change(endInput, { target: { value: '2024-01-15' } });
+    fireEvent.change(endInput, { target: { value: '2024-02-15' } });
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'Date range cannot exceed 7 days for NEO data.',
+      'Date range cannot exceed 30 days.',
     );
     expect(defaultProps.onEndDateChange).not.toHaveBeenCalled();
   });

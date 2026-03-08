@@ -3,6 +3,8 @@ import type { NeoFeedResponse, NeoObject, ApiError } from '@/types';
 import { fetchNeoFeed } from '@/services/nasaApi';
 import { parseApiError } from '@/utils/errorHandler';
 
+const NEO_MAX_DAYS = 7;
+
 interface NeoStats {
   totalCount: number;
   hazardousCount: number;
@@ -52,6 +54,46 @@ function computeNeoStats(neoList: NeoObject[]): NeoStats {
   };
 }
 
+function toIso(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+// Splits a date range into chunks of NEO_MAX_DAYS
+function buildChunks(start: string, end: string): { start: string; end: string }[] {
+  const chunks: { start: string; end: string }[] = [];
+  const endDate = new Date(end + 'T12:00:00');
+  let cursor = new Date(start + 'T12:00:00');
+
+  while (cursor <= endDate) {
+    const chunkEnd = new Date(cursor);
+    chunkEnd.setDate(chunkEnd.getDate() + NEO_MAX_DAYS - 1);
+    const actualEnd = chunkEnd > endDate ? endDate : chunkEnd;
+    chunks.push({ start: toIso(cursor), end: toIso(actualEnd) });
+    cursor = new Date(actualEnd);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return chunks;
+}
+
+async function fetchAllChunks(
+  startDate: string,
+  endDate: string,
+  signal: AbortSignal,
+): Promise<NeoObject[]> {
+  const chunks = buildChunks(startDate, endDate);
+  const allNeos: NeoObject[] = [];
+
+  // Fetch sequentially to avoid hammering the API
+  for (const chunk of chunks) {
+    if (signal.aborted) break;
+    const result = await fetchNeoFeed(chunk.start, chunk.end, signal);
+    allNeos.push(...flattenNeoObjects(result));
+  }
+
+  return allNeos;
+}
+
 export function useNeoFeed(
   startDate: string,
   endDate: string,
@@ -79,11 +121,10 @@ export function useNeoFeed(
     setIsLoading(true);
     setError(null);
 
-    fetchNeoFeed(startDate, endDate, controller.signal)
-      .then((result) => {
+    fetchAllChunks(startDate, endDate, controller.signal)
+      .then((list) => {
         if (!controller.signal.aborted) {
-          setData(result);
-          const list = flattenNeoObjects(result);
+          setData(null);
           setNeoList(list);
           setStats(computeNeoStats(list));
           setIsLoading(false);

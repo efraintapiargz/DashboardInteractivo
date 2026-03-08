@@ -24,9 +24,9 @@ interface ChartDatum {
 }
 
 const FLARE_CLASS_COLORS: Record<string, string> = {
-  C: '#22c55e',
-  M: '#ffab00',
-  X: '#ef4444',
+  C: '#16a34a',
+  M: '#d97706',
+  X: '#dc2626',
 };
 
 function extractIntensity(classType: string): number {
@@ -66,7 +66,7 @@ export function SolarFlareTimelineChart({
 }: SolarFlareTimelineChartProps) {
   if (flares.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-text-secondary font-mono text-sm border border-dashed border-border rounded-lg" role="status">
+      <div className="flex items-center justify-center h-[350px] text-slate-400 text-sm" role="status">
         No solar flare data available
       </div>
     );
@@ -76,7 +76,7 @@ export function SolarFlareTimelineChart({
 
   if (chartData.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-text-secondary font-mono text-sm border border-dashed border-border rounded-lg" role="status">
+      <div className="flex items-center justify-center h-[350px] text-slate-400 text-sm" role="status">
         No flares matching the selected class
       </div>
     );
@@ -86,36 +86,36 @@ export function SolarFlareTimelineChart({
 
   return (
     <div
-      className="w-full min-h-[300px] animate-[fade-in_0.6s_ease-in-out]"
+      className="w-full h-[350px]"
       aria-label="Timeline chart showing solar flare intensity over time"
       role="img"
     >
-      <ResponsiveContainer width="100%" height={350}>
-        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 50 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
           <XAxis
             dataKey="time"
-            stroke="#94a3b8"
-            fontSize={10}
-            tick={{ fontFamily: 'Space Mono, monospace' }}
+            stroke="#a1a1aa"
+            fontSize={9}
+            angle={-35}
+            textAnchor="end"
+            height={60}
           />
           <YAxis
-            stroke="#94a3b8"
+            stroke="#a1a1aa"
             fontSize={11}
-            tick={{ fontFamily: 'Space Mono, monospace' }}
             label={{
               value: 'Intensity',
               angle: -90,
               position: 'insideLeft',
-              style: { fill: '#94a3b8', fontFamily: 'Space Mono, monospace', fontSize: 11 },
+              style: { fill: '#71717a', fontSize: 11 },
             }}
           />
           <Tooltip
             contentStyle={{
-              background: '#0a0e1a',
-              border: '1px solid #1e293b',
-              borderRadius: 6,
-              fontFamily: 'Space Mono, monospace',
+              background: '#fff',
+              border: '1px solid #e4e4e7',
+              borderRadius: 4,
               fontSize: 12,
             }}
             formatter={(
@@ -128,9 +128,7 @@ export function SolarFlareTimelineChart({
               return [`${classType} (${String(value ?? '')})`, 'Flare'];
             }}
           />
-          <Legend
-            wrapperStyle={{ fontFamily: 'Space Mono, monospace', fontSize: 12 }}
-          />
+          <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} verticalAlign="top" align="right" />
           {activeClasses.map((cls) => (
             <Line
               key={cls}

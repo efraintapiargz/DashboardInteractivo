@@ -22,15 +22,15 @@ interface ChartDatum {
 }
 
 const CHART_COLORS = {
-  diameterMin: '#00d4ff',
-  diameterMax: '#ffab00',
+  diameterMin: '#2563eb',
+  diameterMax: '#7c3aed',
 } as const;
 
-const MAX_ASTEROIDS_DISPLAYED = 15;
+const MAX_ASTEROIDS_DISPLAYED = 10;
 
 function prepareChartData(neoList: NeoObject[]): ChartDatum[] {
   return neoList.slice(0, MAX_ASTEROIDS_DISPLAYED).map((neo) => ({
-    name: neo.name.replace(/[()]/g, '').substring(0, 15),
+    name: neo.name.replace(/[()]/g, '').substring(0, 12),
     diameterMin: parseFloat(
       neo.estimated_diameter.kilometers.estimated_diameter_min.toFixed(4),
     ),
@@ -47,7 +47,7 @@ function prepareChartData(neoList: NeoObject[]): ChartDatum[] {
 export function AsteroidSizeBarChart({ neoList }: AsteroidSizeBarChartProps) {
   if (neoList.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-text-secondary font-mono text-sm border border-dashed border-border rounded-lg" role="status">
+      <div className="flex items-center justify-center h-[350px] text-slate-400 text-sm" role="status">
         No asteroid data available
       </div>
     );
@@ -57,44 +57,41 @@ export function AsteroidSizeBarChart({ neoList }: AsteroidSizeBarChartProps) {
 
   return (
     <div
-      className="w-full min-h-[300px] animate-[fade-in_0.6s_ease-in-out]"
+      className="w-full h-[350px]"
       aria-label="Bar chart comparing estimated diameters of near-Earth asteroids"
       role="img"
     >
-      <ResponsiveContainer width="100%" height={350}>
-        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
           <XAxis
             dataKey="name"
-            stroke="#94a3b8"
-            fontSize={10}
-            angle={-45}
+            stroke="#a1a1aa"
+            fontSize={9}
+            angle={-40}
             textAnchor="end"
-            tick={{ fontFamily: 'Space Mono, monospace' }}
+            interval={0}
+            height={70}
           />
           <YAxis
-            stroke="#94a3b8"
+            stroke="#a1a1aa"
             fontSize={11}
-            tick={{ fontFamily: 'Space Mono, monospace' }}
             label={{
               value: 'Diameter (km)',
               angle: -90,
               position: 'insideLeft',
-              style: { fill: '#94a3b8', fontFamily: 'Space Mono, monospace', fontSize: 11 },
+              style: { fill: '#71717a', fontSize: 11 },
             }}
           />
           <Tooltip
             contentStyle={{
-              background: '#0a0e1a',
-              border: '1px solid #1e293b',
-              borderRadius: 6,
-              fontFamily: 'Space Mono, monospace',
+              background: '#fff',
+              border: '1px solid #e4e4e7',
+              borderRadius: 4,
               fontSize: 12,
             }}
           />
-          <Legend
-            wrapperStyle={{ fontFamily: 'Space Mono, monospace', fontSize: 12 }}
-          />
+          <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} verticalAlign="top" align="right" />
           <Bar
             dataKey="diameterMin"
             name="Min Diameter (km)"

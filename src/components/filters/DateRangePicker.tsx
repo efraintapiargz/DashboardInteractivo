@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-const MAX_NEO_RANGE_DAYS = 7;
+const MAX_RANGE_DAYS = 30;
 
 export interface DateRangePickerProps {
   startDate: string;
@@ -9,7 +9,6 @@ export interface DateRangePickerProps {
   onEndDateChange: (date: string) => void;
 }
 
-// Difference in days between two date strings
 function daysBetween(start: string, end: string): number {
   const msPerDay = 86_400_000;
   const startMs = new Date(start).getTime();
@@ -35,9 +34,9 @@ export function DateRangePicker({
         setValidationError('End date must be after start date.');
         return false;
       }
-      if (daysBetween(start, end) > MAX_NEO_RANGE_DAYS) {
+      if (daysBetween(start, end) > MAX_RANGE_DAYS) {
         setValidationError(
-          `Date range cannot exceed ${MAX_NEO_RANGE_DAYS} days for NEO data.`,
+          `Date range cannot exceed ${MAX_RANGE_DAYS} days.`,
         );
         return false;
       }
@@ -71,18 +70,18 @@ export function DateRangePicker({
 
   return (
     <div
-      className="flex flex-wrap gap-2 items-end"
+      className="flex flex-wrap gap-3 items-end"
       role="group"
       aria-label="Date range picker"
     >
       <div className="flex flex-col gap-1">
-        <label htmlFor="start-date" className="font-mono text-xs uppercase tracking-wide text-text-secondary">
-          Start Date
+        <label htmlFor="start-date" className="text-xs font-medium text-slate-600">
+          Fecha inicio
         </label>
         <input
           id="start-date"
           type="date"
-          className="px-3 py-2 border border-border rounded-md bg-surface text-text-primary font-mono text-sm transition-colors focus:outline-none focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/25 [&::-webkit-calendar-picker-indicator]:invert-[0.8]"
+          className="h-9 px-3 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15"
           value={startDate}
           onChange={handleStartChange}
           aria-label="Start date"
@@ -91,14 +90,16 @@ export function DateRangePicker({
         />
       </div>
 
+      <span className="text-slate-300 text-sm pb-1.5">—</span>
+
       <div className="flex flex-col gap-1">
-        <label htmlFor="end-date" className="font-mono text-xs uppercase tracking-wide text-text-secondary">
-          End Date
+        <label htmlFor="end-date" className="text-xs font-medium text-slate-600">
+          Fecha fin
         </label>
         <input
           id="end-date"
           type="date"
-          className="px-3 py-2 border border-border rounded-md bg-surface text-text-primary font-mono text-sm transition-colors focus:outline-none focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/25 [&::-webkit-calendar-picker-indicator]:invert-[0.8]"
+          className="h-9 px-3 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15"
           value={endDate}
           onChange={handleEndChange}
           aria-label="End date"
@@ -108,7 +109,7 @@ export function DateRangePicker({
       </div>
 
       {validationError && (
-        <p id={errorId} className="text-error text-xs mt-1 font-sans" role="alert">
+        <p id={errorId} className="text-red-600 text-xs self-center" role="alert">
           {validationError}
         </p>
       )}
